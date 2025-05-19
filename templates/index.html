@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Cake Uploader</title>
+    <style>
+        body { 
+            font-family: 'Malgun Gothic', sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #f3e5f5;
+        }
+        .container { 
+            display: flex; 
+            gap: 20px; 
+        }
+        .main-content { 
+            flex: 2; 
+        }
+        .sidebar { 
+            flex: 1; 
+        }
+        h1 {
+            text-align: center;
+            color: #7c3aed;
+            margin-bottom: 30px;
+            font-size: 2em;
+            letter-spacing: 2px;
+            text-shadow: 1px 2px 8px #e9d5ff;
+        }
+        .post-card { 
+            border: 1.5px solid #c4b5fd; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 10px;
+            background: #f8f5fc;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.06);
+        }
+        .preview-img { 
+            max-width: 120px; 
+            max-height: 120px; 
+            margin-right: 8px;
+            border-radius: 8px;
+            border: 2px solid #a78bfa;
+            background: #fff;
+        }
+        .img-list { 
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #ede9fe;
+            border-radius: 8px;
+            border: 1.5px solid #c4b5fd;
+        }
+        .input-row { 
+            margin-bottom: 12px; 
+        }
+        .saved-item { 
+            border: 1.5px solid #c4b5fd; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(124,58,237,0.05);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .saved-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(124,58,237,0.10);
+            border-color: #a78bfa;
+        }
+        .saved-item.default { 
+            background-color: #ede9fe; 
+            border-color: #7c3aed;
+        }
+        .saved-content {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .saved-text {
+            font-size: 14px;
+            color: #4b2995;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .saved-text:hover {
+            background-color: #ede9fe;
+        }
+        .saved-tag {
+            font-size: 13px;
+            color: #7c3aed;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .saved-tag:hover {
+            background-color: #ede9fe;
+        }
+        .saved-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .saved-actions button {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .section {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1.5px solid #c4b5fd;
+        }
+        .section h2 {
+            color: #7c3aed;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #a78bfa;
+        }
+        .input-row input {
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 1.5px solid #c4b5fd;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+            background: #f8f5fc;
+        }
+        .input-row input:focus {
+            border-color: #7c3aed;
+            outline: none;
+            box-shadow: 0 0 0 2px #e9d5ff;
+        }
+        .input-row input::placeholder {
+            color: #a78bfa;
+        }
+        button { 
+            background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
+            color: #fff; 
+            border: none; 
+            padding: 8px 18px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+        }
+        button:hover { 
+            background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+            box-shadow: 0 4px 12px rgba(124,58,237,0.15);
+        }
+        button.delete { 
+            background: linear-gradient(90deg, #f43f5e 0%, #a21caf 100%);
+        }
+        button.delete:hover { 
+            background: linear-gradient(90deg, #a21caf 0%, #f43f5e 100%);
+        }
+        .instagram-section { 
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #c4b5fd;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #7c3aed;
+            font-size: 15px;
+            position: relative;
+            margin-right: 5px;
+            transition: color 0.2s;
+            border-radius: 8px 8px 0 0;
+        }
+        .tab:hover {
+            color: #a21caf;
+            background: #ede9fe;
+        }
+        .tab.active {
+            color: #fff;
+            background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
+            font-weight: bold;
+        }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #a78bfa;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .saved-items-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .saved-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .saved-items-container::-webkit-scrollbar-track {
+            background: #ede9fe;
+            border-radius: 3px;
+        }
+        .saved-items-container::-webkit-scrollbar-thumb {
+            background: #c4b5fd;
+            border-radius: 3px;
+        }
+        .saved-items-container::-webkit-scrollbar-thumb:hover {
+            background: #a78bfa;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #a78bfa;
+        }
+        .modal-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .modal-title {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            color: #7c3aed;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #a78bfa;
+        }
+        .modal-text {
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+            font-size: 15px;
+            color: #4b2995;
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1.5px solid #c4b5fd;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .jin-photo-row {
+            width: 100%;
+            max-width: 600px;
+            margin-left: 0;
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(124,58,237,0.08);
+            padding: 20px;
+            gap: 32px;
+            border: 1.5px solid #c4b5fd;
+            margin-bottom: 20px;
+        }
+        .jin-photo-img-rect {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.18);
+            border: 3px solid #a78bfa;
+            background: #f8f5fc;
+            display: block;
+        }
+        .jin-photo-quote-col {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .jin-photo-quote-text {
+            color: #7c3aed;
+            font-size: 1.15em;
+            font-weight: 500;
+            text-align: left;
+            font-style: italic;
+            background: #ede9fe;
+            border-radius: 10px;
+            padding: 18px 18px;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+            white-space: pre-line;
+            line-height: 1.7;
+        }
+        .main-content > .section,
+        .jin-photo-row {
+            max-width: 750px;
+            width: 100%;
+            margin-left: 0;
+            margin-right: auto;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1.5px solid #c4b5fd;
+            box-shadow: 0 2px 4px rgba(124,58,237,0.08);
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>봄날의케이크 업로드</h1>
+    <div class="container">
+        <div class="main-content">
+            <div class="section">
+    <button onclick="addPostCard()">+ 글 추가</button>
+                <form id="postsForm" onsubmit="handleSubmit(event)">
+        <div id="postsContainer"></div>
+        <button type="submit">업로드</button>
+    </form>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="section instagram-section">
+                <h2>인스타그램 계정 설정</h2>
+                <form id="instagramForm" onsubmit="saveInstagram(event)">
+                    <div class="input-row">
+                        <label>아이디: <input type="text" name="username" value="{{ instagram_account.username if instagram_account else '' }}" required></label>
+                    </div>
+                    <div class="input-row">
+                        <label>비밀번호: <input type="password" name="password" value="{{ instagram_account.password if instagram_account else '' }}" required></label>
+                    </div>
+                    <button type="submit">계정 저장</button>
+                </form>
+            </div>
+            <div class="section">
+                <h2>자주 사용하는 문구/태그</h2>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('text')">문구</button>
+                    <button class="tab" onclick="switchTab('tag')">태그</button>
+                </div>
+                <!-- 문구 탭 -->
+                <div id="textTab" class="tab-content active">
+                    <form id="saveTextForm" onsubmit="saveText(event)">
+                        <div class="input-row">
+                            <input type="text" name="text" placeholder="새로운 문구 입력" required>
+                        </div>
+                        <button type="submit">문구 저장</button>
+                    </form>
+                    <div class="saved-items-container">
+                        <div id="savedTexts">
+                            {% for text in saved_texts %}
+                            <div class="saved-item {% if text.is_default %}default{% endif %}" data-id="{{ text.id }}">
+                                <div class="saved-content">
+                                    <div class="saved-text" onclick="showTextModal({{ text.text|tojson }})">
+                                        {{ text.text }}
+                                    </div>
+                                </div>
+                                <div class="saved-actions">
+                                    <button onclick="useText({{ text.text|tojson }})">사용</button>
+                                    <button onclick="setDefaultText({{ text.id }})" {% if text.is_default %}disabled{% endif %}>기본값</button>
+                                    <button class="delete" onclick="deleteText({{ text.id }})">삭제</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- 태그 탭 -->
+                <div id="tagTab" class="tab-content">
+                    <form id="saveTagForm" onsubmit="saveTag(event)">
+                        <div class="input-row">
+                            <input type="text" name="tag" placeholder="새로운 태그 입력" required>
+                        </div>
+                        <button type="submit">태그 저장</button>
+                    </form>
+                    <div class="saved-items-container">
+                        <div id="savedTags">
+                            {% for tag in saved_tags %}
+                            <div class="saved-item {% if tag.is_default %}default{% endif %}" data-id="{{ tag.id }}">
+                                <div class="saved-content">
+                                    <div class="saved-tag" onclick="showTagModal({{ tag.tag|tojson }})">
+                                        {{ tag.tag }}
+                                    </div>
+                                </div>
+                                <div class="saved-actions">
+                                    <button onclick="useTag({{ tag.tag|tojson }})">사용</button>
+                                    <button onclick="setDefaultTag({{ tag.id }})" {% if tag.is_default %}disabled{% endif %}>기본값</button>
+                                    <button class="delete" onclick="deleteTag({{ tag.id }})">삭제</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="jin-photo-row">
+        {% if jin_photo %}
+        <img src="/{{ jin_photo }}" alt="Jin Photo" class="jin-photo-img-rect">
+        <div class="jin-photo-quote-col">
+            <div class="jin-photo-quote-text">화양연화...
+꽃처럼 아름다운... 인생에서 가장 아름답고 행복한 순간</div>
+        </div>
+        {% endif %}
+    </div>
+    <!-- 문구 모달, 태그 모달, 스크립트 등 기존 코드 유지 -->
+    <script>
+        let postCount = 0;
+        const defaultText = "{{ saved_texts|selectattr('is_default', 'equalto', true)|map(attribute='text')|first or '10초컷 디자인! 제 딸 생일케이크~' }}";
+        const defaultTags = "{{ saved_tags|selectattr('is_default', 'equalto', true)|map(attribute='tag')|first or '#울산케이크 #생일케이크 #봄날의케이크' }}";
+
+        function addPostCard() {
+            postCount++;
+            const postId = `post${postCount}`;
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            postCard.id = postId;
+            postCard.innerHTML = `
+                <div class="input-row">
+                    <label>사진 첨부
+                        <input type="file" accept="image/*" multiple onchange="previewImages(event, '${postId}')">
+                    </label>
+                    <div class="img-list" id="${postId}-preview"></div>
+                </div>
+                <div class="input-row">
+                    <label>문구: <input type="text" name="text" value="${defaultText}" style="width:60%"></label>
+                </div>
+                <div class="input-row">
+                    <label>태그: <input type="text" name="tags" value="${defaultTags}" style="width:60%"></label>
+                </div>
+                <button type="button" onclick="removePostCard('${postId}')">삭제</button>
+            `;
+            document.getElementById('postsContainer').appendChild(postCard);
+        }
+
+        function removePostCard(postId) {
+            document.getElementById(postId).remove();
+        }
+
+        function previewImages(event, postId) {
+            const files = event.target.files;
+            const previewDiv = document.getElementById(`${postId}-preview`);
+            previewDiv.innerHTML = '';
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-img';
+                        img.alt = file.name;
+                    previewDiv.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData();
+            const postCards = document.querySelectorAll('.post-card');
+            postCards.forEach((card, index) => {
+                const fileInput = card.querySelector('input[type="file"]');
+                const textInput = card.querySelector('input[name="text"]');
+                const tagsInput = card.querySelector('input[name="tags"]');
+                if (fileInput.files.length > 0) {
+                    for (let file of fileInput.files) {
+                        formData.append('posts', file);
+                    }
+                }
+                formData.append('text', textInput.value);
+                formData.append('tags', tagsInput.value);
+            });
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('업로드가 완료되었습니다!');
+                    document.getElementById('postsContainer').innerHTML = '';
+                    addPostCard();
+                } else {
+                    alert('업로드 중 오류가 발생했습니다: ' + result.error);
+                }
+            } catch (error) {
+                alert('업로드 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function saveInstagram(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            try {
+                const response = await fetch('/save-instagram', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('인스타그램 계정이 저장되었습니다!');
+                } else {
+                    alert('계정 저장 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('계정 저장 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function saveText(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            try {
+                const response = await fetch('/save-text', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('문구 저장 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('문구 저장 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function saveTag(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            try {
+                const response = await fetch('/save-tag', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('태그 저장 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('태그 저장 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function setDefaultText(id) {
+            try {
+                const response = await fetch(`/set-default-text/${id}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('기본값 설정 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('기본값 설정 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function setDefaultTag(id) {
+            try {
+                const response = await fetch(`/set-default-tag/${id}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('기본값 설정 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('기본값 설정 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function deleteText(id) {
+            if (!confirm('이 문구를 삭제하시겠습니까?')) return;
+            try {
+                const response = await fetch(`/delete-text/${id}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('문구 삭제 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('문구 삭제 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        async function deleteTag(id) {
+            if (!confirm('이 태그를 삭제하시겠습니까?')) return;
+            try {
+                const response = await fetch(`/delete-tag/${id}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('태그 삭제 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('태그 삭제 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        function useText(text) {
+            const activePost = document.querySelector('.post-card:last-child');
+            if (activePost) {
+                const textInput = activePost.querySelector('input[name="text"]');
+                if (textInput) textInput.value = text;
+            }
+        }
+
+        function useTag(tag) {
+            const activePost = document.querySelector('.post-card:last-child');
+            if (activePost) {
+                const tagInput = activePost.querySelector('input[name="tags"]');
+                if (tagInput) tagInput.value = tag;
+            }
+        }
+
+        let currentModalText = '';
+        let currentModalTag = '';
+
+        function showTextModal(text) {
+            currentModalText = text;
+            document.getElementById('modalTextContent').textContent = text;
+            document.getElementById('textModal').style.display = 'block';
+        }
+
+        function showTagModal(tag) {
+            currentModalTag = tag;
+            document.getElementById('modalTagContent').textContent = tag;
+            document.getElementById('tagModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function useModalText() {
+            useText(currentModalText);
+            closeModal('textModal');
+        }
+
+        function useModalTag() {
+            useTag(currentModalTag);
+            closeModal('tagModal');
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // 최초 글 1개 생성
+        window.onload = () => addPostCard();
+
+        function switchTab(tabName) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // 모든 탭 컨텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 선택된 탭 활성화
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+    </script>
+</body>
+</html> 
